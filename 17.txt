@@ -1,0 +1,146 @@
+q1]
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score
+from sklearn.datasets import load_diabetes
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.ensemble import VotingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.ensemble import StackingClassifier
+
+# Load the Pima Indians Diabetes dataset
+data = pd.read_csv('diabetes.csv')
+print(data.head())
+
+# Split the dataset into features (X) and target (y)
+X = data.drop('Outcome', axis=1)
+y = data['Outcome']
+
+# Split into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Scale the features
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Bagging with Random Forest
+rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+rf_model.fit(X_train, y_train)
+
+# Predict and evaluate
+y_pred_rf = rf_model.predict(X_test)
+accuracy_rf = accuracy_score(y_test, y_pred_rf)
+print(f"Random Forest Accuracy: {accuracy_rf:.4f}")
+
+# Boosting with AdaBoost
+adaboost_model = AdaBoostClassifier(n_estimators=50, random_state=42)
+adaboost_model.fit(X_train, y_train)
+
+# Predict and evaluate
+y_pred_adaboost = adaboost_model.predict(X_test)
+accuracy_adaboost = accuracy_score(y_test, y_pred_adaboost)
+print(f"AdaBoost Accuracy: {accuracy_adaboost:.4f}")
+
+from sklearn.ensemble import VotingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+
+# Define base models
+lr_model = LogisticRegression(random_state=42)
+svc_model = SVC(probability=True, random_state=42)
+
+# Voting Classifier (Hard voting)
+voting_clf = VotingClassifier(estimators=[('rf', rf_model), ('lr', lr_model), ('svc', svc_model)], voting='hard')
+voting_clf.fit(X_train, y_train)
+
+# Predict and evaluate
+y_pred_voting = voting_clf.predict(X_test)
+accuracy_voting = accuracy_score(y_test, y_pred_voting)
+print(f"Voting Classifier Accuracy: {accuracy_voting:.4f}")
+
+# Define the base models and meta model
+estimators = [('rf', rf_model), ('svc', svc_model)]
+stacking_clf = StackingClassifier(estimators=estimators, final_estimator=LogisticRegression(), cv=5)
+
+# Train the stacking model
+stacking_clf.fit(X_train, y_train)
+
+# Predict and evaluate
+y_pred_stacking = stacking_clf.predict(X_test)
+accuracy_stacking = accuracy_score(y_test, y_pred_stacking)
+print(f"Stacking Classifier Accuracy: {accuracy_stacking:.4f}")
+
+#compare the result
+print(f"Random Forest (Bagging) Accuracy: {accuracy_rf:.4f}")
+print(f"AdaBoost (Boosting) Accuracy: {accuracy_adaboost:.4f}")
+print(f"Voting Classifier Accuracy: {accuracy_voting:.4f}")
+print(f"Stacking Classifier Accuracy: {accuracy_stacking:.4f}")
+________________________________________
+q2]
+
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error,r2_score
+import matplotlib.pyplot as plt
+
+#load dataset
+df=pd.read_csv("HousePricePrediction (1).csv")
+print(df)
+
+#preprocessing the data
+print(df.isnull().sum())
+
+df=df.dropna(subset=['SalePrice'])
+print(df)
+
+df.fillna(0,inplace=True)
+print(df.isnull().sum())
+
+X=df[['LotArea','OverallCond','YearBuilt','TotalBsmtSF']]
+y=df['SalePrice']
+
+print(X)    
+
+#split the data train and testing 
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=30)
+
+#create the train model
+model=LinearRegression()
+model.fit(X_train,y_train)
+
+#Predict the house_price
+y_pred=model.predict(X_test)
+
+#print coefficient and intercept
+print("Model coefficient: ",model.coef_)
+print("Model intercept :",model.intercept_)
+
+
+#compare actual vs predicted value
+comparison_df=pd.DataFrame({'Actual Price:'y_test,
+                            'Predicted Price :'y_pred})
+print(comparison_df)
+
+
+#evaluate the model
+mse=mean_squared_error(y_test,y_pred)
+r2=r2_score(y_test,y_pred)
+print(f"Mean squared error :{mse}")
+print(f"R2 score :{r2}")
+
+
+#plot actual vs predicted
+plt.scatter(y_test,y_pred)
+plt.xlabel("Actual price")
+plt.ylabel("Prediced price")
+plt.title("Actual vs predicted house price ")
+plt.show()
+

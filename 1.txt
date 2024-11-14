@@ -1,0 +1,73 @@
+q1]
+
+import numpy as nm  
+import matplotlib.pyplot as mtp  
+import pandas as pd  
+
+#Importing the dataset  
+dataset = pd.read_csv('Market_Basket_data1.csv')  
+transactions=[]  
+for i in range(0, 7501):  
+    transactions.append([str(dataset.values[i,j])  for j in range(0,20)])  
+
+
+from apyori import apriori  
+rules= apriori(transactions= transactions, min_support=0.003, min_confidence = 0.2, min_lift=3, min_length=2, max_length=2)  
+
+results= list(rules)  
+results   
+
+
+for item in results:  
+    pair = item[0]   
+    items = [x for x in pair]  
+    print("Rule: " + items[0] + " -> " + items[1])  
+  
+    print("Support: " + str(item[1]))  
+    print("Confidence: " + str(item[2][0][2]))  
+    print("Lift: " + str(item[2][0][3]))  
+    print("=====================================")  
+___________________________________
+q2]
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import LabelEncoder
+
+# Load the Iris dataset
+iris = load_iris()
+print(iris.feature_names)
+print(iris.target_names)
+
+data = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+
+#print(data)
+# Add the target column with species names
+data['target'] = iris.target
+
+encoder = LabelEncoder()
+data['target'] = encoder.fit_transform(data['target'])
+
+print(data['target'])
+
+# Create a scatter plot for Sepal Length vs Sepal Width
+plt.figure(figsize=(10, 6))
+sns.scatterplot(
+    x='sepal length (cm)', 
+    y='sepal width (cm)', 
+    hue='target', 
+    palette='brg', 
+    data=data,
+    style='target'
+)
+
+# Add labels and title
+plt.title('Scatter Plot of Sepal Length vs Sepal Width (Iris Dataset)')
+plt.xlabel('Sepal Length (cm)')
+plt.ylabel('Sepal Width (cm)')
+plt.legend(title='Species', loc='upper right')
+# Show the plot
+plt.show()
+

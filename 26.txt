@@ -1,0 +1,114 @@
+q1]
+
+import pandas as pd
+import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
+import matplotlib.pyplot as plt
+
+#read the csv file
+df=pd.read_csv('diabetes.csv')
+print(df)
+
+print(df.isnull().sum())
+
+#define the features and target
+X = df.drop('Outcome', axis=1)  # Features
+y = df['Outcome']               #target
+
+#Scale the features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+#print(X_scaled)
+
+#split the dataset into training and testing data
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=25)
+
+
+accuracies = []
+k_values = range(1, 21)  # Test K values from 1 to 20
+
+for k in k_values:
+    model = KNeighborsClassifier(n_neighbors=k)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    accuracy=accuracy_score(y_test, y_pred)
+    accuracies.append(accuracy)
+    print(f'Accuracy for K={k}: {accuracy}')
+    
+# Plotting accuracies for different K values
+
+plt.plot(k_values, accuracies)
+plt.xlabel('Number of Neighbors K')
+plt.ylabel('Accuracy')
+plt.title('KNN Classifier Accuracy for Different K Values')
+plt.xticks(k_values)
+plt.grid()
+plt.show()
+
+# Find the optimal K
+optimal_k_index = accuracies.index(max(accuracies))  # Get the index of the max accuracy
+optimal_k = k_values[optimal_k_index]                # Get the corresponding K value
+highest_accuracy = accuracies[optimal_k_index]       # Get the highest accuracy value
+
+print(f'Optimal K: {optimal_k}, Highest Accuracy: {highest_accuracy}')
+
+# Build the model
+knn_model = KNeighborsClassifier(n_neighbors=optimal_k)
+knn_model.fit(X_train, y_train)
+
+y_pred = knn_model.predict(X_test)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+print(f'Accuracy: {accuracy}')
+
+print('Confusion Matrix:')
+print(confusion_matrix(y_test, y_pred))
+
+print('Classification Report:')
+print(classification_report(y_test, y_pred))
+
+# Predict on new patient data
+#new_patient=(pregnancies,Glucose,BloodPressure,Skin Thickness,Insulin,BMI,Diabetes,Age)
+new_patient = np.array([[3, 66, 54, 50, 26, 31.7, 0.351,34]])
+#new_patient=np.array([[0,137,40,35,168,43.1,2.288,33]])
+
+feature_names = X.columns  # Get feature names from the training set
+new_patient_df = pd.DataFrame(new_patient, columns=feature_names)
+new_patient_scaled = scaler.transform(new_patient_df)
+prediction = knn_model.predict(new_patient_scaled)
+
+print(f'The predicted outcome for the new patient: {prediction[0]} (1 = Diabetic, 0 = Not Diabetic)')
+___________________________________
+q2]
+
+import numpy as nm  
+import matplotlib.pyplot as mtp  
+import pandas as pd  
+
+#Importing the dataset  
+dataset = pd.read_csv('Market_Basket_data1.csv')  
+transactions=[]  
+for i in range(0, 7501):  
+    transactions.append([str(dataset.values[i,j])  for j in range(0,20)])  
+
+
+from apyori import apriori  
+rules= apriori(transactions= transactions, min_support=0.003, min_confidence = 0.2, min_lift=3, min_length=2, max_length=2)  
+
+results= list(rules)  
+results   
+
+
+for item in results:  
+    pair = item[0]   
+    items = [x for x in pair]  
+    print("Rule: " + items[0] + " -> " + items[1])  
+  
+    print("Support: " + str(item[1]))  
+    print("Confidence: " + str(item[2][0][2]))  
+    print("Lift: " + str(item[2][0][3]))  
+    print("=====================================")  

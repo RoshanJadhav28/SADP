@@ -1,0 +1,122 @@
+q1]
+
+from sklearn.datasets import fetch_20newsgroups
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import Pipeline
+from sklearn import metrics
+
+# Load the 20 newsgroups dataset
+categories = None
+# This will load all 20 categories
+newsgroups = fetch_20newsgroups(subset='train', categories=categories, shuffle=True, random_state=42)
+
+# Display categories in the dataset
+print("Available Categories:\n", newsgroups.target_names)
+
+X=newsgroups.data
+y=newsgroups.target
+# Split dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Build a pipeline to perform feature extraction and classification
+text_clf = Pipeline([
+    ('vect', CountVectorizer()),          # Converts text to word counts
+    ('tfidf', TfidfTransformer()),        # Converts word counts to TF-IDF(Term Frequency Inverse Document Frequency) features 
+    ('clf', MultinomialNB()),             # Apply Multinomial Naive Bayes classifier
+])
+print(text_clf)
+
+# Train the classifier
+text_clf.fit(X_train, y_train)
+
+# Test the classifier with the test data
+y_pred = text_clf.predict(X_test)
+
+# Output accuracy
+accuracy = metrics.accuracy_score(y_test, y_pred)#(y_test,X_test in place of y_pred)
+print(f"Model accuracy: {accuracy:.4f}")
+
+# Show classification report
+print(metrics.classification_report(y_test, y_pred, target_names=newsgroups.target_names))
+
+# Function to predict the category of new text
+def categorize_news(text):
+    predicted_category_index = text_clf.predict([text])[0]
+    return newsgroups.target_names[predicted_category_index]
+
+# Example usage
+example_news="The stock market is experiencing a significant decline clue to global economic challenges."
+predicted_category=categorize_news(example_news)
+print("Predicted category for the news:", predicted_category)
+________________________________________________________
+q2]
+
+from sklearn.datasets import load_iris
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+
+iris=load_iris()
+print(dir(iris))
+print(iris.data)
+print(iris.feature_names)
+print(iris.target_names)
+
+
+#convert iris dataset into dataframe
+df=pd.DataFrame(iris.data,columns=iris.feature_names)
+print(df.head())
+
+#add target column to df
+df['target']=iris.target
+print(df)
+
+#to display the pair plot (hue=target ->change color based on target flower use blue red green palette)
+sns.pairplot(df,hue='target',palette='brg')
+plt.show()
+
+X=df.drop(['target'],axis='columns')
+Y=df.target
+
+#split the dataset
+X_train,X_test,Y_train,Y_test=train_test_split(X,Y,test_size=0.2)
+
+#train the model
+model=SVC(kernel='poly') #kernel[linear,ploy,rbf(Gaussian by default)]
+model.fit(X_train,Y_train)
+
+y_pred=model.predict(X_test)
+
+#accuracy
+accuracy=model.score(X_test,Y_test)
+
+print(f'accuracy of svm model with linear kernel:{accuracy}')
+print(f'accuracy of svm model with rbf kernel:{accuracy}')
+print(f'accuracy of svm model with poly kernel:{accuracy}')
+
+accuracy1=accuracy_score(Y_test,y_pred)
+print(accuracy1)
+
+#take a random sample 
+new_data = np.array([[5.1,3.5,1.4,0.2],  # Example of Iris-setosa
+                     [4.9,3.0,1.4,0.2],  # Example of Iris-setosa
+                     [6.3,3.3,6.0,2.5],  # Example of Iris-virginica
+                     [6.3,3.3,4.7,1.6], #Example of Iris-versicolor
+                     [6.9,3.1,5.1,2.3],
+                     ])  
+
+#Convert to DataFrame with proper feature names
+input_df = pd.DataFrame(new_data, columns=iris.feature_names)
+
+predictions = model.predict(input_df)
+# Output predictions
+for i, pred in enumerate(predictions):
+    print(f"Input: {new_data[i]} - Predicted flower type: {iris.target_names[pred]}")
+
+

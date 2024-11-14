@@ -1,0 +1,91 @@
+q1]
+
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import Ridge,Lasso
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error,mean_absolute_error,r2_score
+import matplotlib.pyplot as plt
+
+df=pd.read_csv("BostonHousing.csv")
+print(df.head())
+
+X=df[['rm']].values
+y=df['medv'].values
+
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
+
+#ridge regression
+ridge=Ridge(alpha=1.0)
+ridge.fit(X_train,y_train)
+
+ridge_pred=ridge.predict([[5]])
+print(f'Predict the price of 5 rooms with ridge regression :{ridge_pred[0]}')
+
+y_pred_ridge=ridge.predict(X_test)
+
+#evaluate the model
+mae=mean_absolute_error(y_test,y_pred_ridge)
+print(f'Mean absolute error with ridge regression:{mae}')
+
+rmse=np.sqrt(mean_squared_error(y_test,y_pred_ridge))
+print(f'Root Mean squared error with ridge regression:{rmse}')
+
+#Lasso regression
+lasso=Lasso(alpha=0.1)
+lasso.fit(X_train,y_train)
+
+lasso_pred=lasso.predict([[5]])
+print(f'Predict the price of 5 rooms with ridge regression :{lasso_pred[0]}')
+
+y_pred_lasso=lasso.predict(X_test)
+
+#evaluate the model
+mae=mean_absolute_error(y_test,y_pred_lasso)
+print(f'Mean absolute error with lasso regression:{mae}')
+
+rmse=np.sqrt(mean_squared_error(y_test,y_pred_lasso))
+print(f'Root Mean squared error with lasso regression:{rmse}')
+
+#visualize the model
+plt.figure(figsize=(12,8))
+plt.scatter(X_train,y_train,color='blue',label="training data")
+plt.scatter(X_train,ridge.predict(X_train),color='red',label="ridge regression")
+plt.scatter(X_train,lasso.predict(X_train),color='yellow',label="lasso regression")
+plt.xlabel("no of rooms")
+plt.ylabel("prices")
+plt.legend()
+plt.show()
+____________________________________
+q2]
+
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.preprocessing import LabelEncoder
+
+# Load the dataset
+df=pd.read_csv('PlayTennis.csv')
+print(df.head())
+
+# Encode categorical features and the target variable
+le = LabelEncoder()
+df_encoded = df.apply(le.fit_transform)
+print(df_encoded.head())
+
+# Separate features and target variable
+X = df_encoded.drop(['play'],axis='columns')
+y = df_encoded['play']
+
+# Train the Decision Tree classifier
+decision_tree_model = DecisionTreeClassifier(random_state=42)
+decision_tree_model.fit(X, y)
+
+# Predict and evaluate on the training set
+y_pred = decision_tree_model.predict(X)
+accuracy = accuracy_score(y, y_pred)
+report = classification_report(y, y_pred)
+
+# Output the results
+print("Accuracy:", accuracy)
+print("Classification Report:\n", report)

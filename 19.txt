@@ -1,0 +1,118 @@
+q1]
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.metrics import mean_squared_error,r2_score
+
+#load the dataset
+df=pd.read_csv("Position_Salaries.csv")
+print(df)
+
+#preapre the data
+X=df[['Level']].values
+y=df['Salary'].values
+
+#simple linear Regression
+
+linear_model=LinearRegression()
+linear_model.fit(X,y)
+
+y_pred_linear=linear_model.predict(X)
+
+#plot simple linear regression
+plt.scatter(X,y,color='red')
+plt.plot(X,y_pred_linear,color='blue')
+plt.title('Simple linear regression')
+plt.xlabel("Level")
+plt.ylabel("Salary")
+plt.show()
+
+#polynomial 
+poly=PolynomialFeatures(degree=4) 
+X_poly=poly.fit_transform(X) 
+
+poly_model=LinearRegression()
+poly_model.fit(X_poly,y)
+
+y_pred_poly=poly_model.predict(X_poly)
+
+#plot polynomial regression
+plt.scatter(X,y,color='green')
+plt.plot(X,y_pred_poly,color='yellow')
+plt.title('Polynomial linear regression')
+plt.xlabel("Level")
+plt.ylabel("Salary")
+plt.show()
+
+#evaluate the simple-linear model
+mse_linear=mean_squared_error(y,y_pred_linear)
+r2_linear=r2_score(y,y_pred_linear)
+
+print(f"Mean squared error :{mse_linear}")
+print(f"R2 score:{r2_linear}")
+
+#evaluate the polynomial model
+mse_poly=mean_squared_error(y,y_pred_poly)
+r2_poly=r2_score(y,y_pred_poly)
+
+print(f"Mean squared error :{mse_poly}")
+print(f"R2 score:{r2_poly}")
+
+#predict the salary for level 11 and 12 simple linear
+level_11_12=np.array([[11],[12]]) 
+salary_pred_linear=linear_model.predict(level_11_12)
+print(f"simple linear")
+print(f"Predicted salary for level 11:{salary_pred_linear[0]}")
+print(f"Predicted salary for level 12:{salary_pred_linear[1]}")
+
+#predict the salary for level 11 and 12 polynomial linear
+level_11_12=poly.transform([[11],[12]])
+salary_pred_poly=poly_model.predict(level_11_12)
+print(f"polynomial regression")
+print(f"Predicted salary for level 11:{salary_pred_poly[0]}")
+print(f"Predicted salary for level 12:{salary_pred_poly[1]}")
+______________________________________________
+q2]
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.preprocessing import LabelEncoder
+
+# Load the dataset
+df = pd.read_csv("weather_forecast.csv")
+
+# Encode categorical features
+le=LabelEncoder()
+df_encoded=df.apply(le.fit_transform)
+
+# Separate features and target variable
+X = df_encoded.drop("Play", axis=1)
+y = df_encoded["Play"]
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Initialize the Naive Bayes model
+nb_model = GaussianNB()
+
+# Train the model
+nb_model.fit(X_train, y_train)
+
+# Make predictions
+y_pred = nb_model.predict(X_test)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+classification_rep = classification_report(y_test, y_pred)
+
+print("Accuracy:", accuracy)
+print("Classification Report:\n", classification_rep)
+
+
+
+

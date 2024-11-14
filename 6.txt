@@ -1,0 +1,87 @@
+q1]
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+import numpy as np
+
+# Load the dataset
+data = pd.read_csv("BostonHousing.csv")
+
+# Define the single feature (RM) and target (medv)
+X = data[['rm']]  # Selecting 'rm' as the single independent variable
+y = data['medv']
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train Simple Linear Regression model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Make predictions
+y_test_pred = model.predict(X_test)
+
+# Evaluate the model
+
+test_rmse = np.sqrt(mean_squared_error(y_test, y_test_pred))
+test_r2 = r2_score(y_test, y_test_pred)
+
+# Display results
+print(f"Testing RMSE: {test_rmse:.2f}")
+print(f"Testing R^2: {test_r2:.2f}")
+_____________________________________________
+q2]
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import LabelEncoder
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
+
+df=pd.read_csv('Employee_Salary_Dataset.csv')
+print(df.head())
+
+#converting the categorial data into numerical 0-'female' and 1-'Male'
+le=LabelEncoder()
+
+df['Gender']=le.fit_transform(df['Gender'])
+print(df.head())
+
+# Standardizing the data (K-means performs better with scaled data)
+scaler = StandardScaler()
+scaled_df = scaler.fit_transform(df)
+
+# Finding the optimal value of k using Elbow Method
+sse = []
+k_range = range(1, 11)  # Trying k from 1 to 10
+for k in k_range:
+    kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+    kmeans.fit(scaled_df)
+    sse.append(kmeans.inertia_)  # Sum of squared distances to centroids
+
+# Plotting the Elbow Curve
+plt.figure(figsize=(8, 6))
+plt.plot(k_range, sse, marker='o')
+plt.title('Elbow Method')
+plt.xlabel('Number of clusters (k)')
+plt.ylabel('Sum of squared distances (Inertia)')
+plt.show()
+
+# Based on the elbow method and silhouette score, let's assume we choose k=3
+kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
+df['Cluster'] = kmeans.fit_predict(scaled_df)
+
+# Showing the clustered data
+print(df.head(15))
+
+#visualize the clusters (for 2D data)
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x='Salary', y='Experience_Years', hue='Cluster', data=df, palette='viridis')
+plt.title('Employee Clusters based on Salary and Experience_Years')
+plt.show()
+

@@ -1,0 +1,31 @@
+q1]
+___________________________________
+q2]
+
+import pandas as pd
+import numpy as np
+
+# Create a sample dataset
+data = {
+    'Name': ['Alice', 'Bob', 'Charlie', 'David', None],
+    'Age': [25, 30, None, 22, 28],
+    'City': ['New York', 'Los Angeles', None, 'Chicago', 'Miami']
+}
+
+# Convert the dataset into a pandas DataFrame
+df = pd.DataFrame(data)
+
+# Display the dataset before removing null values
+print("Dataset before removing null values:")
+print(df)
+
+# Find and display the count of null values in each column
+print("\nCount of null values in each column:")
+print(df.isnull().sum())
+
+# Remove rows with any null values
+df_cleaned = df.dropna()
+
+# Display the cleaned dataset
+print("\nDataset after removing null values:")
+print(df_cleaned)
